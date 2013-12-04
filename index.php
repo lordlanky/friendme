@@ -1,11 +1,24 @@
+<?php
+
+#Load all preloading variables
+include "includes/inc_preLoad.php";
+
+#Load the interface start
+include _DIRBASE."includes/inc_interfaceLoad.php";
+
+/*
+ * Interface starts here
+ */
+?>
+
+<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
 
 <?php
-#This include contains everything in the <head></head> tags
-include "includes/inc_head.php";
 
-#This include starts the <body> tag
-include "includes/inc_body_start.php";
+/*
+ * Interface ends here
+ */
 
-#This include ends the </body> tag
-include "includes/inc_body_end.php";
+#Close down the interface
+include _DIRBASE."includes/inc_interfaceEnd.php";
 ?>
