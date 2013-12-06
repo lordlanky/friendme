@@ -15,7 +15,7 @@ ini_set('include_path', $strWhere);
 ################################################################################
 
 include "secure/ch_toolbox.php";
-include "secure/icoe_toolbox.php";
+include "secure/friend_toolbox.php";
 include "includes/facebook.php";
 
 ################################################################################
@@ -50,7 +50,7 @@ if (!$fb_user) {
 }
 
 #Create an Icoe Toolbox
-$icoe = new Icoe($facebook, $fb_user);
+$friend = new Friend($facebook, $fb_user);
 
 ################################################################################
 # COMMON ADDRESS BAR DATA
