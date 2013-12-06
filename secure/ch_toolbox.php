@@ -6,8 +6,40 @@
 
 class Toolbox {
 
-    private $db;
-    private $e;
+    protected $db;
+    protected $e;
+    protected $url_base;
+    protected $domain;
+    protected $arrAddBar;
+
+    function __construct() {
+
+        $this->url_base = $_SERVER['SCRIPT_URI'];
+        $this->domain = $_SERVER['SERVER_NAME'];
+
+        #Grab the URL parser
+        {
+            $this->arrAddBar = array();
+
+            $arrParse = parse_url($_SERVER[HTTP_HOST] . $_SERVER[REQUEST_URI]);
+
+            #Turn all paths and queries into the same thing
+            $arrQueries = explode("&", $arrParse['query']);
+
+            foreach ($arrQueries AS $str) {
+
+                $arr = preg_split('~\=~', $str);
+                #$arr[0] = $this->makeDBSafe($arr[0]);
+                #$arr[1] = $this->makeDBSafe($arr[1]);
+                $this->arrAddBar[$arr[0]] = $arr[1];
+            }
+        }
+    }
+
+    function getAddVars() {
+
+        return $this->arrAddBar;
+    }
 
     /*
      * This function will round down a number to x decimal places
@@ -174,7 +206,7 @@ class Toolbox {
 
     function makeDBSafe($strIn) {
 
-        $strOut = mysql_real_escape_string($strIn, $this->$db);
+        $strOut = mysql_real_escape_string($strIn, $this->$db) or die($this->showTrace(mysql_error()));
         return $strOut;
     }
 
@@ -183,9 +215,7 @@ class Toolbox {
      */
 
     function setDatabase($dbHost, $dbUser, $dbPass, $dbName) {
-
-        $this->db = mysql_connect($dbHost, $dbUser, $dbPass) OR DIE("Unable to 
-            connect to database! Please try again later.");
+        $this->db = mysql_connect($dbHost, $dbUser, $dbPass) OR DIE($this->showTrace(mysql_errno()));
         mysql_select_db($dbName);
     }
 
@@ -284,8 +314,8 @@ class Toolbox {
 
     function doSQLRes($sqlStr) {
 
-        $sqlRes = doSQL($sqlStr);
-        $arrRes = sql2arr($sqlRes);
+        $sqlRes = $this->doSQL($sqlStr);
+        $arrRes = $this->sqlToArr($sqlRes);
 
         return $arrRes;
     }
@@ -313,12 +343,12 @@ class Toolbox {
 
     function doSQL($sqlStr, $blTrace = true) {
 
-        $sqlRes = mysql_query($sqlStr, $this->db) or die(showTrace(mysql_error($this->db), $blTrace));
+        $sqlRes = mysql_query($sqlStr, $this->db) or die($this->showTrace(mysql_error($this->db), $blTrace));
 
         return $sqlRes;
     }
 
-    function showTrace($sqlErr, $blTrace = true) {
+    function showTrace($sqlErr = false, $blTrace = true) {
 
         if ($blTrace) {
             $arrTrace = debug_backtrace();
@@ -326,8 +356,42 @@ class Toolbox {
             $arrTrace['GET'] = $_GET;
             $arrTrace['SESSION'] = $_SESSION;
             $arrTrace['COOKIES'] = $_COOKIE;
-            show($arrTrace);
+            $arrTrace['DATABASE'] = mysql_info($this->db);
+            $arrTrace['OTHER'] = $sqlErr;
+
+            unset($arrTrace[0]);
+            $this->show($arrTrace);
         }
+    }
+
+    /*
+     * Generate a SQL in statement
+     */
+
+    function createSQLIn($arrVals, $strTable, $strField, $strIn = "IN", $strJoin = "AND") {
+
+        $str = $strJoin . " " . $strTable . "." . $strField . " " . $strIn . " (";
+        $strAdd = false;
+
+        foreach ($arrVals AS $strVal) {
+
+            if ($strAdd) {
+
+                $strAdd .= ",";
+            }
+
+            if (!is_numeric($strVal)) {
+
+                $strAdd .= "'" . $strVal . "'";
+            } else {
+
+                $strAdd .= $strVal;
+            }
+        }
+
+        $str = $str . $strAdd . ")";
+
+        return $str;
     }
 
     /*

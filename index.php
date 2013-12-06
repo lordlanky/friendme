@@ -4,21 +4,30 @@
 include "includes/inc_preLoad.php";
 
 #Load the interface start
-include _DIRBASE."includes/inc_interfaceLoad.php";
+include "includes/inc_interfaceLoad.php";
 
 /*
  * Interface starts here
  */
-?>
 
-<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
-
-<?php
+#If we are not logged in, show the logged out interface
+switch ($status) {
+    
+    case "NOTSIGNEDIN":
+        
+        include "interface/signedout_base.php";        
+        break;
+    
+    case "SIGNEDIN":
+        
+        include "interface/signedin_base.php";        
+        break;
+}
 
 /*
  * Interface ends here
  */
 
 #Close down the interface
-include _DIRBASE."includes/inc_interfaceEnd.php";
+include "includes/inc_interfaceEnd.php";
 ?>

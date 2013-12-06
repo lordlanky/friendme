@@ -2,5 +2,5 @@
     <div id="fb-root"></div>
 
     <?php
-    include _DIRBASE."includes/inc_facebookLogin.php";
+    include "includes/inc_facebookLogin.php";
     ?>

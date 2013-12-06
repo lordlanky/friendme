@@ -1,0 +1,13 @@
+ErrorDocument 404 /404.php
+SetEnv DEFAULT_PHP_VERSION 5
+
+  Options +FollowSymLinks
+  RewriteEngine On
+
+  RewriteCond %{SCRIPT_FILENAME} !-d
+  RewriteCond %{SCRIPT_FILENAME} !-f
+
+  RewriteRule ^users/(\d+)*$ ./index.php?id=$1
+  RewriteRule ^threads/(\d+)*$ ./index.php?id=$1
+
+  RewriteRule ^search/(.*)$ ./index.php?query=$1
